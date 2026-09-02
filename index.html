@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Separator - FG/BG Comparison</title>
+  <meta name="description" content="Compare foreground and background separation across four providers.">
+  <meta property="og:title" content="Separator - FG/BG Comparison">
+  <meta property="og:description" content="Compare foreground and background separation across four providers.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://vishnugowrisetty.github.io/separator-fg-bg-comparison/">
+  <meta property="og:image" content="https://vishnugowrisetty.github.io/separator-fg-bg-comparison/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Separator - FG/BG Comparison">
+  <meta name="twitter:description" content="Compare foreground and background separation across four providers.">
+  <meta name="twitter:image" content="https://vishnugowrisetty.github.io/separator-fg-bg-comparison/og.png">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #181818; background: #fff; font-family: Arial, Helvetica, sans-serif; line-height: 1.4; }
+    main { width: min(880px, calc(100% - 32px)); margin: 40px auto 64px; }
+    h1 { margin: 0 0 6px; font-size: 28px; }
+    h2 { margin: 0; font-size: 18px; }
+    .picker { margin: 28px 0 18px; }
+    label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; }
+    select { width: 100%; padding: 10px; border: 1px solid #bbb; border-radius: 4px; background: #fff; color: #181818; font: inherit; }
+    video { display: block; width: 100%; max-height: 500px; background: #000; border-radius: 4px; }
+    .source-info { display: flex; justify-content: space-between; gap: 16px; margin: 10px 0 30px; font-size: 13px; }
+    .source-info a { color: #181818; }
+    .provider { padding: 20px 0; border-top: 1px solid #ddd; }
+    .stems { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 12px; }
+    .stem span { display: block; margin-bottom: 5px; color: #666; font-size: 12px; }
+    audio { display: block; width: 100%; height: 36px; }
+    @media (max-width: 620px) {
+      main { margin-top: 24px; }
+      .stems { grid-template-columns: 1fr; gap: 12px; }
+      .source-info { display: block; }
+      .source-info a { display: inline-block; margin-top: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Separator - FG/BG Comparison</h1>
+    </header>
+
+    <div class="picker">
+      <label for="case-select">Source</label>
+      <select id="case-select"></select>
+    </div>
+
+    <video id="source-video" controls preload="metadata"></video>
+    <div class="source-info">
+      <span><strong id="case-title"></strong> · <span id="source-credit"></span></span>
+      <a id="source-link" target="_blank" rel="noreferrer">View source</a>
+    </div>
+
+    <section class="provider">
+      <h2>Camb</h2>
+      <div class="stems">
+        <div class="stem"><span>Foreground</span><audio id="camb-foreground" controls preload="none"></audio></div>
+        <div class="stem"><span>Background</span><audio id="camb-background" controls preload="none"></audio></div>
+      </div>
+    </section>
+
+    <section class="provider">
+      <h2>ElevenLabs</h2>
+      <div class="stems">
+        <div class="stem"><span>Vocals</span><audio id="elevenlabs-vocals" controls preload="none"></audio></div>
+        <div class="stem"><span>Instrumental / background</span><audio id="elevenlabs-instrumental" controls preload="none"></audio></div>
+      </div>
+    </section>
+
+    <section class="provider">
+      <h2>AudioShake</h2>
+      <div class="stems">
+        <div class="stem"><span>Vocals</span><audio id="audioshake-vocals" controls preload="none"></audio></div>
+        <div class="stem"><span>Instrumental / background</span><audio id="audioshake-instrumental" controls preload="none"></audio></div>
+      </div>
+    </section>
+
+    <section class="provider">
+      <h2>LALAL.AI</h2>
+      <div class="stems">
+        <div class="stem"><span>Vocals</span><audio id="lalal-vocals" controls preload="none"></audio></div>
+        <div class="stem"><span>No vocals / background</span><audio id="lalal-instrumental" controls preload="none"></audio></div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const cases = [
+      {
+        id: "gaming", label: "Gaming + commentary", title: "Mixed-reality gameplay", credit: "Sarah Northway · CC BY-SA 3.0",
+        video: "media/gaming/source.mp4",
+        source: "https://commons.wikimedia.org/wiki/File:Fantastic_Contraption_-_Gord%27s_Lobster.webm",
+        foreground: "media/gaming/camb_foreground.flac", background: "media/gaming/camb_background.flac",
+        elevenVocals: "media/gaming/elevenlabs_vocals.mp3", elevenInstrumental: "media/gaming/elevenlabs_instrumental.mp3",
+        audioshakeVocals: "media/gaming/audioshake_vocals.flac", audioshakeInstrumental: "media/gaming/audioshake_instrumental.flac",
+        lalalVocals: "media/gaming/lalal_vocals.flac", lalalInstrumental: "media/gaming/lalal_instrumental.flac"
+      },
+      {
+        id: "cinematic", label: "Film trailer", title: "Cinematic trailer", credit: "Metro-Goldwyn-Mayer · public domain in the U.S.",
+        video: "media/cinematic/source.mp4",
+        source: "https://commons.wikimedia.org/wiki/File:2001_A_Space_Odyssey_(1968)_-_Trailer.webm",
+        foreground: "media/cinematic/camb_foreground.flac", background: "media/cinematic/camb_background.flac",
+        elevenVocals: "media/cinematic/elevenlabs_vocals.mp3", elevenInstrumental: "media/cinematic/elevenlabs_instrumental.mp3",
+        audioshakeVocals: "media/cinematic/audioshake_vocals.flac", audioshakeInstrumental: "media/cinematic/audioshake_instrumental.flac",
+        lalalVocals: "media/cinematic/lalal_vocals.flac", lalalInstrumental: "media/cinematic/lalal_instrumental.flac"
+      },
+      {
+        id: "concert", label: "Live music", title: "Live concert recording", credit: "Gatewaycomputerfan · CC0 1.0",
+        video: "media/concert/source.mp4",
+        source: "https://commons.wikimedia.org/wiki/File:Liam_Gallagher_performs_in_July_2017_in_New_York_City.webm",
+        foreground: "media/concert/camb_foreground.flac", background: "media/concert/camb_background.flac",
+        elevenVocals: "media/concert/elevenlabs_vocals.mp3", elevenInstrumental: "media/concert/elevenlabs_instrumental.mp3",
+        audioshakeVocals: "media/concert/audioshake_vocals.flac", audioshakeInstrumental: "media/concert/audioshake_instrumental.flac",
+        lalalVocals: "media/concert/lalal_vocals.flac", lalalInstrumental: "media/concert/lalal_instrumental.flac"
+      },
+      {
+        id: "street_interview", label: "Outdoor interview", title: "Street interview in Lagos", credit: "Dfertileplain · CC BY-SA 4.0",
+        video: "media/street_interview/source.mp4",
+        source: "https://commons.wikimedia.org/wiki/File:A_participant_on_the_street_of_Lagos_talks_about_Wikipedia.webm",
+        foreground: "media/street_interview/camb_foreground.flac", background: "media/street_interview/camb_background.flac",
+        elevenVocals: "media/street_interview/elevenlabs_vocals.mp3", elevenInstrumental: "media/street_interview/elevenlabs_instrumental.mp3",
+        audioshakeVocals: "media/street_interview/audioshake_vocals.flac", audioshakeInstrumental: "media/street_interview/audioshake_instrumental.flac",
+        lalalVocals: "media/street_interview/lalal_vocals.flac", lalalInstrumental: "media/street_interview/lalal_instrumental.flac"
+      },
+      {
+        id: "newsroom", label: "Live newsroom", title: "Live television news production", credit: "Subhashish Panigrahi · CC BY-SA 4.0",
+        video: "media/newsroom/source.mp4",
+        source: "https://commons.wikimedia.org/wiki/File:Live_television_news_production_at_Indian_Institute_of_Mass_Communication,_Dhenkanal,_Odisha.webm",
+        foreground: "media/newsroom/camb_foreground.flac", background: "media/newsroom/camb_background.flac",
+        elevenVocals: "media/newsroom/elevenlabs_vocals.mp3", elevenInstrumental: "media/newsroom/elevenlabs_instrumental.mp3",
+        audioshakeVocals: "media/newsroom/audioshake_vocals.flac", audioshakeInstrumental: "media/newsroom/audioshake_instrumental.flac",
+        lalalVocals: "media/newsroom/lalal_vocals.flac", lalalInstrumental: "media/newsroom/lalal_instrumental.flac"
+      },
+      {
+        id: "archival_debate", label: "Archival television", title: "1960 television debate", credit: "WBBM / CBS · public domain in the U.S.",
+        video: "media/archival_debate/source.mp4",
+        source: "https://commons.wikimedia.org/wiki/File:John_F._Kennedy_and_Richard_Nixon_-_United_States_presidential_TV_debate_(September_26,_1960).webm",
+        foreground: "media/archival_debate/camb_foreground.flac", background: "media/archival_debate/camb_background.flac",
+        elevenVocals: "media/archival_debate/elevenlabs_vocals.mp3", elevenInstrumental: "media/archival_debate/elevenlabs_instrumental.mp3",
+        audioshakeVocals: "media/archival_debate/audioshake_vocals.flac", audioshakeInstrumental: "media/archival_debate/audioshake_instrumental.flac",
+        lalalVocals: "media/archival_debate/lalal_vocals.flac", lalalInstrumental: "media/archival_debate/lalal_instrumental.flac"
+      }
+    ];
+
+    const fields = {
+      video: document.getElementById("source-video"),
+      foreground: document.getElementById("camb-foreground"),
+      background: document.getElementById("camb-background"),
+      elevenVocals: document.getElementById("elevenlabs-vocals"),
+      elevenInstrumental: document.getElementById("elevenlabs-instrumental"),
+      audioshakeVocals: document.getElementById("audioshake-vocals"),
+      audioshakeInstrumental: document.getElementById("audioshake-instrumental"),
+      lalalVocals: document.getElementById("lalal-vocals"),
+      lalalInstrumental: document.getElementById("lalal-instrumental")
+    };
+    const select = document.getElementById("case-select");
+    const title = document.getElementById("case-title");
+    const credit = document.getElementById("source-credit");
+    const sourceLink = document.getElementById("source-link");
+
+    cases.forEach(testCase => select.add(new Option(testCase.label, testCase.id)));
+
+    function render(testCase) {
+      Object.values(fields).forEach(player => player.pause());
+      Object.entries(fields).forEach(([key, player]) => player.src = testCase[key]);
+      title.textContent = testCase.title;
+      credit.textContent = testCase.credit;
+      sourceLink.href = testCase.source;
+    }
+
+    select.addEventListener("change", () => render(cases.find(testCase => testCase.id === select.value)));
+    const players = Object.values(fields);
+    players.forEach(player => player.addEventListener("play", () => players.forEach(other => { if (other !== player) other.pause(); })));
+    render(cases[0]);
+  </script>
+</body>
+</html>
