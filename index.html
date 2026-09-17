@@ -30,11 +30,31 @@
     .stems { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 12px; }
     .stem span { display: block; margin-bottom: 5px; color: #666; font-size: 12px; }
     audio { display: block; width: 100%; height: 36px; }
+    .benchmark-metrics { margin-top: 34px; padding-top: 28px; border-top: 2px solid #181818; }
+    .benchmark-metrics > h2 { font-size: 22px; }
+    .metrics-summary { margin: 5px 0 24px; color: #666; font-size: 14px; }
+    .metric-family + .metric-family { margin-top: 28px; padding-top: 24px; border-top: 1px solid #ddd; }
+    .metric-family h3 { margin: 0; font-size: 17px; }
+    .metric-note { margin: 4px 0 14px; color: #666; font-size: 13px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .metric-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .metric-card { min-width: 0; }
+    .metric-card h4 { margin: 0 0 2px; font-size: 14px; }
+    .metric-direction { display: block; margin-bottom: 4px; color: #666; font-size: 12px; font-weight: 400; }
+    .metric-chart { display: block; width: 100%; height: auto; }
+    .metric-chart text { fill: #181818; font-family: Arial, Helvetica, sans-serif; font-size: 11px; }
+    .metric-chart .tick text, .metric-chart .axis-title { fill: #666; }
+    .metric-chart .domain, .metric-chart .tick line, .metric-chart .chart-frame { stroke: #ddd; }
+    .metric-chart .bar-camb { fill: #f47b20; }
+    .metric-chart .bar-peer { fill: #888; opacity: .62; }
+    .metric-chart .zero-line { stroke: #181818; stroke-width: 1px; opacity: .5; }
+    .metric-chart .value { font-weight: 700; }
     @media (max-width: 620px) {
       main { margin-top: 24px; }
       .stems { grid-template-columns: 1fr; gap: 12px; }
       .source-info { display: block; }
       .source-info a { display: inline-block; margin-top: 4px; }
+      .metric-grid, .metric-grid.two { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -87,8 +107,43 @@
       </div>
     </section>
 
+    <section class="benchmark-metrics" id="benchmark-metrics" aria-labelledby="metrics-title">
+      <h2 id="metrics-title">Automated benchmark results</h2>
+      <p class="metrics-summary">Macro averages across the same seven clips. Higher is better for every graph. Camb is orange.</p>
+
+      <section class="metric-family" aria-labelledby="dnsmos-title">
+        <h3 id="dnsmos-title">DNSMOS P.835</h3>
+        <p class="metric-note">Predicted mean-opinion scores for foreground speech.</p>
+        <div class="metric-grid">
+          <div class="metric-card"><h4>Speech quality</h4><span class="metric-direction">Higher is better</span><div data-metric="dnsmos_sig"></div></div>
+          <div class="metric-card"><h4>Background quality</h4><span class="metric-direction">Higher is better</span><div data-metric="dnsmos_bak"></div></div>
+          <div class="metric-card"><h4>Overall quality</h4><span class="metric-direction">Higher is better</span><div data-metric="dnsmos_ovrl"></div></div>
+        </div>
+      </section>
+
+      <section class="metric-family" aria-labelledby="squim-title">
+        <h3 id="squim-title">SQUIM</h3>
+        <p class="metric-note">Reference-free model estimates. Camb PESQ and SI-SDR are manually supplied; all other values are computed macro averages.</p>
+        <div class="metric-grid">
+          <div class="metric-card"><h4>Estimated STOI</h4><span class="metric-direction">Higher is better</span><div data-metric="squim_stoi"></div></div>
+          <div class="metric-card"><h4>Estimated PESQ</h4><span class="metric-direction">Higher is better</span><div data-metric="squim_pesq"></div></div>
+          <div class="metric-card"><h4>Estimated SI-SDR</h4><span class="metric-direction">Higher is better</span><div data-metric="squim_sisdr"></div></div>
+        </div>
+      </section>
+
+      <section class="metric-family" aria-labelledby="clap-title">
+        <h3 id="clap-title">CLAPScore improvement</h3>
+        <p class="metric-note">Semantic movement from the original mixture toward the requested stem description; this is not an artifact score.</p>
+        <div class="metric-grid two">
+          <div class="metric-card"><h4>Foreground target</h4><span class="metric-direction">Higher is better</span><div data-metric="clap_fg_i"></div></div>
+          <div class="metric-card"><h4>Background target</h4><span class="metric-direction">Higher is better</span><div data-metric="clap_bg_i"></div></div>
+        </div>
+      </section>
+    </section>
+
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
   <script>
     const cases = [
       {
@@ -186,6 +241,88 @@
     const players = Object.values(fields);
     players.forEach(player => player.addEventListener("play", () => players.forEach(other => { if (other !== player) other.pause(); })));
     render(cases[0]);
+
+    const benchmarkData = [
+      { provider: "Camb", dnsmos_sig: 2.661523, dnsmos_bak: 2.884470, dnsmos_ovrl: 2.303230, squim_stoi: 0.743669, squim_pesq: 1.895, squim_sisdr: 2.84, clap_fg_i: -0.013339, clap_bg_i: 0.087202 },
+      { provider: "ElevenLabs", dnsmos_sig: 2.522736, dnsmos_bak: 2.537777, dnsmos_ovrl: 2.093788, squim_stoi: 0.726176, squim_pesq: 1.543966, squim_sisdr: 1.636954, clap_fg_i: 0.033500, clap_bg_i: 0.075546 },
+      { provider: "AudioShake", dnsmos_sig: 2.387213, dnsmos_bak: 2.306604, dnsmos_ovrl: 1.922520, squim_stoi: 0.696910, squim_pesq: 1.527230, squim_sisdr: 1.009092, clap_fg_i: 0.031619, clap_bg_i: 0.161940 },
+      { provider: "LALAL.AI", dnsmos_sig: 2.684087, dnsmos_bak: 2.973108, dnsmos_ovrl: 2.326872, squim_stoi: 0.739581, squim_pesq: 1.852365, squim_sisdr: 2.809562, clap_fg_i: -0.003722, clap_bg_i: 0.118681 }
+    ];
+    const metricConfigs = {
+      dnsmos_sig: { axis: "Predicted MOS", format: d3.format(".3f") },
+      dnsmos_bak: { axis: "Predicted MOS", format: d3.format(".3f") },
+      dnsmos_ovrl: { axis: "Predicted MOS", format: d3.format(".3f") },
+      squim_stoi: { axis: "Estimated STOI", format: d3.format(".3f") },
+      squim_pesq: { axis: "Estimated PESQ", format: d3.format(".3f") },
+      squim_sisdr: { axis: "Estimated SI-SDR (dB)", format: d3.format(".2f") },
+      clap_fg_i: { axis: "CLAPScore change", format: d3.format("+.3f"), diverging: true },
+      clap_bg_i: { axis: "CLAPScore change", format: d3.format("+.3f"), diverging: true }
+    };
+
+    function drawMetric(host) {
+      const metric = host.dataset.metric;
+      const config = metricConfigs[metric];
+      const width = Math.max(270, host.clientWidth);
+      const height = 220;
+      const margin = { top: 8, right: 55, bottom: 42, left: 88 };
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+      const values = benchmarkData.map(row => row[metric]);
+      const extent = d3.extent([0, ...values]);
+      const span = extent[1] - extent[0] || 1;
+      const domain = [extent[0] - (extent[0] < 0 ? span * .12 : 0), extent[1] + span * .2];
+      const x = d3.scaleLinear().domain(domain).range([0, innerWidth]);
+      const y = d3.scaleBand().domain(benchmarkData.map(row => row.provider)).range([0, innerHeight]).padding(.34);
+
+      host.replaceChildren();
+      const summary = `${config.axis} by provider: ${benchmarkData.map(row => `${row.provider} ${config.format(row[metric])}`).join(", ")}`;
+      const svg = d3.select(host).append("svg")
+        .attr("class", "metric-chart")
+        .attr("viewBox", `0 0 ${width} ${height}`)
+        .attr("role", "img")
+        .attr("aria-label", summary);
+      svg.append("title").text(summary);
+      const plot = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+      plot.append("rect").attr("class", "chart-frame")
+        .attr("x", 0).attr("y", 0).attr("width", innerWidth).attr("height", innerHeight).attr("fill", "none");
+      plot.append("g").attr("transform", `translate(0,${innerHeight})`)
+        .call(d3.axisBottom(x).ticks(width < 340 ? 3 : 4).tickSize(-innerHeight).tickFormat(config.format))
+        .call(axis => axis.selectAll(".tick line").attr("opacity", .55));
+      plot.append("g").call(d3.axisLeft(y).tickSize(0).tickPadding(8)).call(axis => axis.select(".domain").remove());
+
+      if (config.diverging) {
+        plot.append("line").attr("class", "zero-line")
+          .attr("x1", x(0)).attr("x2", x(0)).attr("y1", 0).attr("y2", innerHeight);
+      }
+
+      plot.selectAll("rect.metric-bar").data(benchmarkData).join("rect")
+        .attr("class", row => `metric-bar ${row.provider === "Camb" ? "bar-camb" : "bar-peer"}`)
+        .attr("x", row => Math.min(x(0), x(row[metric])))
+        .attr("y", row => y(row.provider))
+        .attr("width", row => Math.max(1, Math.abs(x(row[metric]) - x(0))))
+        .attr("height", y.bandwidth());
+
+      plot.selectAll("text.value").data(benchmarkData).join("text")
+        .attr("class", "value")
+        .attr("x", row => row[metric] < 0 ? Math.max(2, x(row[metric]) - 5) : Math.min(innerWidth - 2, x(row[metric]) + 5))
+        .attr("y", row => y(row.provider) + y.bandwidth() / 2)
+        .attr("dominant-baseline", "middle")
+        .attr("text-anchor", row => row[metric] < 0 || x(row[metric]) + 50 > innerWidth ? "end" : "start")
+        .text(row => config.format(row[metric]));
+
+      svg.append("text").attr("class", "axis-title")
+        .attr("x", margin.left + innerWidth / 2).attr("y", height - 5).attr("text-anchor", "middle").text(config.axis);
+    }
+
+    const metricHosts = [...document.querySelectorAll("[data-metric]")];
+    const drawAllMetrics = () => metricHosts.forEach(drawMetric);
+    drawAllMetrics();
+    let metricResizeTimer;
+    new ResizeObserver(() => {
+      clearTimeout(metricResizeTimer);
+      metricResizeTimer = setTimeout(drawAllMetrics, 80);
+    }).observe(document.getElementById("benchmark-metrics"));
   </script>
 </body>
 </html>
