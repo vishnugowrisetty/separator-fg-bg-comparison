@@ -31,8 +31,6 @@
     .stem span { display: block; margin-bottom: 5px; color: #666; font-size: 12px; }
     audio { display: block; width: 100%; height: 36px; }
     .benchmark-metrics { margin-top: 34px; padding-top: 28px; border-top: 2px solid #181818; }
-    .benchmark-metrics > h2 { font-size: 22px; }
-    .metrics-summary { margin: 5px 0 24px; color: #666; font-size: 14px; }
     .metric-family + .metric-family { margin-top: 28px; padding-top: 24px; border-top: 1px solid #ddd; }
     .metric-family h3 { margin: 0; font-size: 17px; }
     .metric-note { margin: 4px 0 14px; color: #666; font-size: 13px; }
@@ -108,10 +106,7 @@
       </div>
     </section>
 
-    <section class="benchmark-metrics" id="benchmark-metrics" aria-labelledby="metrics-title">
-      <h2 id="metrics-title">Automated benchmark results</h2>
-      <p class="metrics-summary">Macro averages across the same seven clips. Higher is better for every graph. Camb is orange.</p>
-
+    <section class="benchmark-metrics" id="benchmark-metrics" aria-label="Benchmark metrics">
       <section class="metric-family" aria-labelledby="dnsmos-title">
         <h3 id="dnsmos-title">DNSMOS P.835</h3>
         <p class="metric-note">Predicted mean-opinion scores for foreground speech.</p>
