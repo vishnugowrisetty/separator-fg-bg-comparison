@@ -38,6 +38,7 @@
     .metric-note { margin: 4px 0 14px; color: #666; font-size: 13px; }
     .metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
     .metric-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .metric-grid.checks { grid-template-columns: 1fr; gap: 28px; }
     .metric-card { min-width: 0; }
     .metric-card h4 { margin: 0 0 2px; font-size: 14px; }
     .metric-direction { display: block; margin-bottom: 4px; color: #666; font-size: 12px; font-weight: 400; }
@@ -131,12 +132,11 @@
         </div>
       </section>
 
-      <section class="metric-family" aria-labelledby="clap-title">
-        <h3 id="clap-title">CLAPScore improvement</h3>
-        <p class="metric-note">Semantic movement from the original mixture toward the requested stem description; this is not an artifact score.</p>
-        <div class="metric-grid two">
-          <div class="metric-card"><h4>Foreground target</h4><span class="metric-direction">Higher is better</span><div data-metric="clap_fg_i"></div></div>
-          <div class="metric-card"><h4>Background target</h4><span class="metric-direction">Higher is better</span><div data-metric="clap_bg_i"></div></div>
+      <section class="metric-family" aria-labelledby="checks-title">
+        <h3 id="checks-title">Two useful checks</h3>
+        <div class="metric-grid checks">
+          <div class="metric-card"><h4>1. Voice kept in the foreground</h4><span class="metric-direction">Higher is better · average CLAP speech-focus gap</span><div data-metric="voice_focus_gap"></div></div>
+          <div class="metric-card"><h4>2. Voice left in the background</h4><span class="metric-direction">Lower is better · average soft speech probability</span><div data-metric="background_speech_prob"></div></div>
         </div>
       </section>
     </section>
@@ -243,10 +243,10 @@
     render(cases[0]);
 
     const benchmarkData = [
-      { provider: "Camb", dnsmos_sig: 2.661523, dnsmos_bak: 2.884470, dnsmos_ovrl: 2.303230, squim_stoi: 0.743669, squim_pesq: 1.895, squim_sisdr: 2.84, clap_fg_i: -0.013339, clap_bg_i: 0.087202 },
-      { provider: "ElevenLabs", dnsmos_sig: 2.522736, dnsmos_bak: 2.537777, dnsmos_ovrl: 2.093788, squim_stoi: 0.726176, squim_pesq: 1.543966, squim_sisdr: 1.636954, clap_fg_i: 0.033500, clap_bg_i: 0.075546 },
-      { provider: "AudioShake", dnsmos_sig: 2.387213, dnsmos_bak: 2.306604, dnsmos_ovrl: 1.922520, squim_stoi: 0.696910, squim_pesq: 1.527230, squim_sisdr: 1.009092, clap_fg_i: 0.031619, clap_bg_i: 0.161940 },
-      { provider: "LALAL.AI", dnsmos_sig: 2.684087, dnsmos_bak: 2.973108, dnsmos_ovrl: 2.326872, squim_stoi: 0.739581, squim_pesq: 1.852365, squim_sisdr: 2.809562, clap_fg_i: -0.003722, clap_bg_i: 0.118681 }
+      { provider: "Camb", dnsmos_sig: 2.661523, dnsmos_bak: 2.884470, dnsmos_ovrl: 2.303230, squim_stoi: 0.743669, squim_pesq: 1.895, squim_sisdr: 2.84, voice_focus_gap: 0.258, background_speech_prob: 0.00376 },
+      { provider: "ElevenLabs", dnsmos_sig: 2.522736, dnsmos_bak: 2.537777, dnsmos_ovrl: 2.093788, squim_stoi: 0.726176, squim_pesq: 1.543966, squim_sisdr: 1.636954, voice_focus_gap: 0.229, background_speech_prob: 0.00447 },
+      { provider: "AudioShake", dnsmos_sig: 2.387213, dnsmos_bak: 2.306604, dnsmos_ovrl: 1.922520, squim_stoi: 0.696910, squim_pesq: 1.527230, squim_sisdr: 1.009092, voice_focus_gap: 0.209, background_speech_prob: 0.00437 },
+      { provider: "LALAL.AI", dnsmos_sig: 2.684087, dnsmos_bak: 2.973108, dnsmos_ovrl: 2.326872, squim_stoi: 0.739581, squim_pesq: 1.852365, squim_sisdr: 2.809562, voice_focus_gap: 0.255, background_speech_prob: 0.00529 }
     ];
     const metricConfigs = {
       dnsmos_sig: { axis: "Predicted MOS", format: d3.format(".3f") },
@@ -255,8 +255,8 @@
       squim_stoi: { axis: "Estimated STOI", format: d3.format(".3f") },
       squim_pesq: { axis: "Estimated PESQ", format: d3.format(".3f") },
       squim_sisdr: { axis: "Estimated SI-SDR (dB)", format: d3.format(".2f") },
-      clap_fg_i: { axis: "CLAPScore change", format: d3.format("+.3f"), diverging: true },
-      clap_bg_i: { axis: "CLAPScore change", format: d3.format("+.3f"), diverging: true }
+      voice_focus_gap: { axis: "CLAP gap", format: d3.format(".3f") },
+      background_speech_prob: { axis: "Soft speech probability", format: d3.format(".3%") }
     };
 
     function drawMetric(host) {
